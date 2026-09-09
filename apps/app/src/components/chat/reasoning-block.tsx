@@ -23,13 +23,13 @@ type ReasoningBlockProps = {
  * when the user opens it.
  */
 export function ReasoningBlock({ text, isStreaming, className }: ReasoningBlockProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} className={cn("w-full", className)} data-reasoning-block="">
       <CollapsibleTrigger className="group flex cursor-pointer items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
         <span className={cn(isStreaming && "animate-pulse")}>
-          {isStreaming ? "Thinking…" : "Thought"}
+          {isStreaming ? "Reasoning trace…" : "Reasoning trace"}
         </span>
         <ChevronDown
           aria-hidden="true"
