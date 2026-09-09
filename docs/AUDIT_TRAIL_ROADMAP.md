@@ -1,6 +1,6 @@
 # Kavach Lightweight Audit Trail Roadmap
 
-Status: implementation plan
+Status: V1 demo implemented; later phases remain roadmap items
 
 Target: single-user Round 1 prototype
 
