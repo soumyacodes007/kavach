@@ -42,7 +42,7 @@ export function registerLocalWorkflowRoutes(options: RegisterLocalWorkflowRoutes
     const workspace = await writableWorkspace(ctx);
     const routing = parse(localRoutingSettingsSchema, await readJsonBody(ctx.request));
     const result = await service.saveRouting(workspace, routing);
-    await audit(workspace, "local_workflow.routing.updated", workspace.id, "Updated workflow model routing", ctx.actor);
+    await audit(workspace, "local_workflow.routing.updated", workspace.id, "Updated workflow model routing", ctx.actor, { enabled: result.enabled, defaultModel: result.defaultModel, categories: result.categories });
     return jsonResponse(result);
   });
   addRoute(routes, "POST", "/workspace/:id/local-workflows/route", "client", async (ctx) => {
@@ -53,7 +53,7 @@ export function registerLocalWorkflowRoutes(options: RegisterLocalWorkflowRoutes
   addRoute(routes, "POST", "/workspace/:id/local-workflows", "client", async (ctx) => {
     const workspace = await writableWorkspace(ctx);
     const workflow = await service.upsert(workspace, parse(localWorkflowInputSchema, await readJsonBody(ctx.request)));
-    await audit(workspace, "local_workflow.created", workflow.id, "Created workflow", ctx.actor);
+    await audit(workspace, "local_workflow.created", workflow.id, "Created workflow", ctx.actor, { name: workflow.name, enabled: workflow.enabled, intervalMinutes: workflow.intervalMinutes, stepCount: workflow.steps.length });
     return jsonResponse(workflow, 201);
   });
   addRoute(routes, "PATCH", "/workspace/:id/local-workflows/:workflowId", "client", async (ctx) => {
@@ -63,13 +63,13 @@ export function registerLocalWorkflowRoutes(options: RegisterLocalWorkflowRoutes
     if (!current) throw new ApiError(404, "workflow_not_found", "Workflow not found");
     const body = parse(z.record(z.string(), z.unknown()), await readJsonBody(ctx.request));
     const workflow = await service.upsert(workspace, parse(localWorkflowInputSchema, { ...current, ...body }), ctx.params.workflowId);
-    await audit(workspace, "local_workflow.updated", workflow.id, workflow.enabled ? "Updated workflow schedule/settings" : "Updated workflow; schedule paused", ctx.actor);
+    await audit(workspace, "local_workflow.updated", workflow.id, workflow.enabled ? "Updated workflow schedule/settings" : "Updated workflow; schedule paused", ctx.actor, { name: workflow.name, enabled: workflow.enabled, intervalMinutes: workflow.intervalMinutes, nextRunAt: workflow.nextRunAt, stepCount: workflow.steps.length });
     return jsonResponse(workflow);
   });
   addRoute(routes, "DELETE", "/workspace/:id/local-workflows/:workflowId", "client", async (ctx) => {
     const workspace = await writableWorkspace(ctx);
     await service.remove(workspace, ctx.params.workflowId);
-    await audit(workspace, "local_workflow.deleted", ctx.params.workflowId, "Deleted workflow", ctx.actor);
+    await audit(workspace, "local_workflow.deleted", ctx.params.workflowId, "Deleted workflow", ctx.actor, { workflowId: ctx.params.workflowId });
     return jsonResponse({ ok: true });
   });
   addRoute(routes, "POST", "/workspace/:id/local-workflows/:workflowId/run", "client", async (ctx) => {
@@ -84,6 +84,6 @@ export function registerLocalWorkflowRoutes(options: RegisterLocalWorkflowRoutes
   });
   return service;
 }
-async function audit(workspace: WorkspaceInfo, action: string, target: string, summary: string, actor: Actor = { type: "host" }): Promise<void> {
-  await recordAudit(workspace.path, { id: `audit_${randomUUID()}`, workspaceId: workspace.id, actor, action, target, summary, timestamp: Date.now() });
+async function audit(workspace: WorkspaceInfo, action: string, target: string, summary: string, actor: Actor = { type: "host" }, details?: Record<string, unknown>): Promise<void> {
+  await recordAudit(workspace.path, { id: `audit_${randomUUID()}`, workspaceId: workspace.id, actor, action, target, summary, timestamp: Date.now(), ...(details ? { details } : {}) });
 }

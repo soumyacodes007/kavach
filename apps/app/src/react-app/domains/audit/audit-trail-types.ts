@@ -82,6 +82,7 @@ export type AuditWorkspaceRecord = AuditRecordBase & {
   actor: "remote" | "host" | string;
   action: string;
   target: string;
+  details?: Record<string, unknown>;
 };
 
 export type AuditTrailRecord =

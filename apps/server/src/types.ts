@@ -240,4 +240,5 @@ export interface AuditEntry {
   target: string;
   summary: string;
   timestamp: number;
+  details?: Record<string, unknown>;
 }

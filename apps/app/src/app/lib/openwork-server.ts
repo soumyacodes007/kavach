@@ -955,6 +955,7 @@ export type OpenworkAuditEntry = {
   target: string;
   summary: string;
   timestamp: number;
+  details?: Record<string, unknown>;
 };
 
 export type OpenworkReloadTrigger = {

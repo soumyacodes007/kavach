@@ -185,7 +185,7 @@ export class LocalWorkflowService {
     this.active.set(workspace.id, active);
     try {
       await this.mutate(workspace, (state) => { state.runs = [run, ...state.runs].slice(0, 100); });
-      await this.audit(workspace, "run.started", run.id, `Workflow run started (${trigger})`, actor);
+      await this.audit(workspace, "run.started", run.id, `Workflow run started (${trigger})`, actor, { workflowId, workflowName: workflow.name, trigger, stepCount: workflow.steps.length });
       void this.execute(workspace, structuredClone(workflow), run, active).catch(() => undefined).finally(completion.resolve);
       return structuredClone(run);
     } catch (error) {
@@ -285,7 +285,17 @@ export class LocalWorkflowService {
       this.markFinished(run, status, error);
       return true;
     });
-    if (changed) await this.audit(workspace, `run.${status}`, runId, `Workflow run ${status}`, actor);
+    if (changed) {
+      const run = await this.getRun(workspace, runId).catch(() => null);
+      await this.audit(workspace, `run.${status}`, runId, `Workflow run ${status}`, actor, run ? {
+        workflowId: run.workflowId,
+        workflowName: run.workflowName,
+        trigger: run.trigger,
+        status: run.status,
+        error: run.error,
+        steps: run.steps.map((step) => ({ id: step.stepId, name: step.name, status: step.status, sessionId: step.sessionId, model: step.decision?.model ?? null })),
+      } : undefined);
+    }
   }
 
   private async abortSession(active: ActiveRun): Promise<void> {
@@ -334,10 +344,10 @@ export class LocalWorkflowService {
     finally { this.ticking = false; }
   }
 
-  private async audit(workspace: WorkspaceInfo, action: string, target: string, summary: string, actor: Actor = { type: "host" }): Promise<void> {
+  private async audit(workspace: WorkspaceInfo, action: string, target: string, summary: string, actor: Actor = { type: "host" }, details?: Record<string, unknown>): Promise<void> {
     await recordAudit(workspace.path, {
       id: `audit_${randomUUID()}`, workspaceId: workspace.id, actor, action: `local_workflow.${action}`,
-      target, summary, timestamp: Date.now(),
+      target, summary, timestamp: Date.now(), ...(details ? { details } : {}),
     });
   }
 }

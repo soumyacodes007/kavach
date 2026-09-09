@@ -10,6 +10,10 @@ export type NormalizeWorkspaceAuditOptions = {
 };
 
 function normalizeSlashes(value: string): string { return value.replaceAll("\\", "/"); }
+function recordValue(value: unknown): Record<string, unknown> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  return Object.fromEntries(Object.entries(value));
+}
 function relativeTarget(target: string, workspacePath?: string): string {
   const normalized = normalizeSlashes(target.trim());
   if (!workspacePath) return normalized.startsWith("/") ? normalized.split("/").pop() || normalized : normalized;
@@ -27,6 +31,8 @@ export function normalizeWorkspaceAuditEntry(entry: OpenworkAuditEntry, options:
   const target = relativeTarget(typeof entry.target === "string" ? entry.target : "", opts.workspacePath);
   const summary = redactAuditText(entry.summary, { environmentValues: opts.environmentValues });
   const targetRedaction = redactAuditValueWithMetadata(target, { environmentValues: opts.environmentValues });
+  const detailsRedaction = entry.details ? redactAuditValueWithMetadata(entry.details, { environmentValues: opts.environmentValues }) : null;
+  const safeDetails = detailsRedaction ? recordValue(detailsRedaction.value) : undefined;
   const actor = entry.actor?.type ?? "host";
   return {
     kind: "workspace",
@@ -41,7 +47,8 @@ export function normalizeWorkspaceAuditEntry(entry: OpenworkAuditEntry, options:
     actor,
     action: entry.action,
     target: String(targetRedaction.value),
-    ...(summary !== entry.summary || targetRedaction.redacted ? { redacted: true } : {}),
+    ...(safeDetails ? { details: safeDetails } : {}),
+    ...(summary !== entry.summary || targetRedaction.redacted || detailsRedaction?.redacted ? { redacted: true } : {}),
   };
 }
 
