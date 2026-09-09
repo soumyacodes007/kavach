@@ -54,6 +54,7 @@ import { t } from "../../../../i18n";
 import { resolveExtensionIconSrc } from "../../../design-system/extension-icon-src";
 import { useBrandAppName, useBrandLogoUrl } from "../../cloud/brand-theme";
 import { canCreateWorkspaces } from "../../../../app/lib/workspace-creation-policy";
+import { useShellConfig } from "../../../shell/shell-config";
 
 import {
   Sidebar,
@@ -959,6 +960,7 @@ function isSessionActivityStatus(status: string | undefined): status is SessionA
 }
 
 export function AppSidebar(props: AppSidebarProps) {
+  const { config: shellConfig } = useShellConfig();
   const [auditOpen, setAuditOpen] = React.useState(false);
   const [localWorkflowsOpen, setLocalWorkflowsOpen] = React.useState(false);
   const auditSummary = useAuditTrailController({
@@ -1339,9 +1341,27 @@ export function AppSidebar(props: AppSidebarProps) {
           </m.div>
         </SidebarReorderScope>
 
-        <SidebarFooter className="border-t border-sidebar-border/60 p-1.5 pe-0">
-          <AccountStatusMenu {...props.status} onOpenAccountSettings={props.onOpenAccountSettings} />
-        </SidebarFooter>
+        {shellConfig.cloudSignin ? (
+          <SidebarFooter className="border-t border-sidebar-border/60 p-1.5 pe-0">
+            <AccountStatusMenu {...props.status} onOpenAccountSettings={props.onOpenAccountSettings} />
+          </SidebarFooter>
+        ) : props.onOpenAccountSettings ? (
+          <SidebarFooter className="border-t border-sidebar-border/60 p-1.5 pe-0">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  type="button"
+                  onClick={props.onOpenAccountSettings}
+                  tooltip="Settings"
+                  aria-label="Settings"
+                >
+                  <Settings className="size-4" />
+                  <span>Settings</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        ) : null}
 
         <SidebarRail
           style={{ cursor: "col-resize" }}

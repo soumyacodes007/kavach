@@ -1,5 +1,7 @@
 /** @jsxImportSource react */
 import { createContext, useCallback, use, useMemo, useState, type ReactNode } from "react";
+import { isDesktopRuntime } from "../../app/lib/runtime-env";
+import { readDesktopDistributionInfo } from "../../app/lib/desktop";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -42,7 +44,7 @@ export const DEFAULT_SHELL_CONFIG: ShellConfig = {
   sidebar: true,
   docsButton: true,
   feedbackButton: true,
-  cloudSignin: false,
+  cloudSignin: true,
   welcomePage: true,
   starterCards: true,
   modelPicker: true,
@@ -57,15 +59,22 @@ export const DEFAULT_SHELL_CONFIG: ShellConfig = {
 
 const STORAGE_KEY = "openwork.shell-config";
 
+function effectiveShellConfig(config: ShellConfig): ShellConfig {
+  if (isDesktopRuntime() && readDesktopDistributionInfo().flavor === "public") {
+    return { ...config, cloudSignin: false };
+  }
+  return config;
+}
+
 function readShellConfig(): ShellConfig {
   if (typeof window === "undefined") return DEFAULT_SHELL_CONFIG;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_SHELL_CONFIG;
+    if (!raw) return effectiveShellConfig(DEFAULT_SHELL_CONFIG);
     const parsed = JSON.parse(raw);
-    return { ...DEFAULT_SHELL_CONFIG, ...parsed };
+    return effectiveShellConfig({ ...DEFAULT_SHELL_CONFIG, ...parsed });
   } catch {
-    return DEFAULT_SHELL_CONFIG;
+    return effectiveShellConfig(DEFAULT_SHELL_CONFIG);
   }
 }
 
@@ -95,15 +104,16 @@ export function ShellConfigProvider({ children }: { children: ReactNode }) {
 
   const update = useCallback((patch: Partial<ShellConfig>) => {
     setConfig((prev) => {
-      const next = { ...prev, ...patch };
+      const next = effectiveShellConfig({ ...prev, ...patch });
       writeShellConfig(next);
       return next;
     });
   }, []);
 
   const reset = useCallback(() => {
-    setConfig(DEFAULT_SHELL_CONFIG);
-    writeShellConfig(DEFAULT_SHELL_CONFIG);
+    const next = effectiveShellConfig(DEFAULT_SHELL_CONFIG);
+    setConfig(next);
+    writeShellConfig(next);
   }, []);
 
   const value = useMemo<ShellConfigContextValue>(

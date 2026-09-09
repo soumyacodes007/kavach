@@ -190,7 +190,6 @@ export function getGlobalSettingsTabs(
 }
 
 export const CLOUD_SETTINGS_TABS: SettingsTab[] = [
-  "cloud-account",
 ];
 
 export function isSettingsTabBeta(_tab: SettingsTab) {

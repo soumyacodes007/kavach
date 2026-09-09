@@ -88,7 +88,6 @@ import { EffectivePermissionsPanel } from "@/react-app/domains/settings/panels/e
 import { SettingsStack } from "@/react-app/domains/settings/settings-section";
 import { AdvancedView } from "@/react-app/domains/settings/pages/advanced-view";
 import { AppearanceView } from "@/react-app/domains/settings/pages/appearance-view";
-import { CloudAccountView } from "@/react-app/domains/settings/pages/cloud-account-view";
 import {
   connectPluginsForComposer,
   EMPTY_CONNECT_CAPABILITY_INVENTORY,
@@ -312,6 +311,7 @@ export function parseSettingsPath(pathname: string): {
     case "advanced":
       return { tab: "advanced", redirectPath: null, advancedSection: tail };
     case "cloud-account":
+      return { tab: "general", redirectPath: "general" };
     case "cloud-providers":
       return { tab: head, redirectPath: null };
     case "connect":
@@ -2286,7 +2286,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
   }
 
   const openCloudAccountSettings = () => {
-    navigateSettingsPath("cloud-account");
+    navigateSettingsPath("general");
   };
 
   const settingsView = (() => {
@@ -2497,13 +2497,6 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
               />
             )}
 
-          />
-        );
-      case "cloud-account":
-        return (
-          <CloudAccountView
-            developerMode={developerMode}
-            session={denSession}
           />
         );
       case "cloud-providers":
