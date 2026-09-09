@@ -1,8 +1,10 @@
 # Kavach Lightweight Audit Trail Roadmap
 
-Status: implementation plan  
-Target: single-user Round 1 prototype  
-Placement: compact section in the existing left sidebar  
+Status: implementation plan
+
+Target: single-user Round 1 prototype
+
+Placement: compact section in the existing left sidebar
 Primary goal: make every agent run understandable without introducing a second agent runtime or a second transcript database
 
 ## 1. Executive decision
