@@ -9,6 +9,7 @@ export default defineConfig({
     "openwork-provider": "src/openwork-provider.ts",
     "automations": "src/automations.ts",
     workflows: "src/workflows.ts",
+    "local-workflows": "src/local-workflows.ts",
     "skill-created-app": "src/skill-created-app.ts",
     "connection-action-app": "src/connection-action-app.ts",
     "plugin-flow-app": "src/plugin-flow-app.ts",

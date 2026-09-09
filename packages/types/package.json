@@ -39,6 +39,11 @@
       "development": "./src/workflows.ts",
       "default": "./src/workflows.ts"
     },
+    "./local-workflows": {
+      "types": "./src/local-workflows.ts",
+      "development": "./src/local-workflows.ts",
+      "default": "./src/local-workflows.ts"
+    },
     "./skill-created-app": {
       "types": "./src/skill-created-app.ts",
       "development": "./src/skill-created-app.ts",
