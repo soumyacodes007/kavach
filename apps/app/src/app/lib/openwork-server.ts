@@ -17,6 +17,16 @@ import { isDesktopRuntime } from "./runtime-env";
 import type { ExecResult, OpencodeConfigFile, WorkspaceInfo, WorkspaceList } from "./desktop";
 import type { DenOrgMarketplace, DenOrgPluginResolved, DenResourceSnapshot } from "./den-types";
 import type { CloudImportedMarketplace, CloudImportedPlugin, CloudImportedProvider } from "../cloud/import-state";
+import type {
+  LocalModelRef,
+  LocalRouteCategory,
+  LocalRouteDecision,
+  LocalRoutingSettings,
+  LocalWorkflow,
+  LocalWorkflowInput,
+  LocalWorkflowRun,
+  LocalWorkflowsSnapshot,
+} from "@openwork/types/local-workflows";
 
 export type OpenworkServerCapabilities = {
   skills: { read: boolean; write: boolean; source: "openwork" | "opencode" };
@@ -2169,6 +2179,38 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
         `/workspace/${workspaceId}/audit?limit=${limit}`,
         { token, hostToken },
       ),
+    getLocalWorkflows: (workspaceId: string) =>
+      requestJson<LocalWorkflowsSnapshot>(baseUrl, `/workspace/${encodeURIComponent(workspaceId)}/local-workflows`, {
+        token, hostToken, timeoutMs: timeouts.config,
+      }),
+    saveLocalWorkflowRouting: (workspaceId: string, body: LocalRoutingSettings) =>
+      requestJson<LocalRoutingSettings>(baseUrl, `/workspace/${encodeURIComponent(workspaceId)}/local-workflows/routing`, {
+        token, hostToken, method: "PUT", body, timeoutMs: timeouts.config,
+      }),
+    previewLocalWorkflowRoute: (workspaceId: string, body: { prompt: string; category?: LocalRouteCategory | "auto"; model?: LocalModelRef | null }) =>
+      requestJson<LocalRouteDecision>(baseUrl, `/workspace/${encodeURIComponent(workspaceId)}/local-workflows/route`, {
+        token, hostToken, method: "POST", body, timeoutMs: timeouts.config,
+      }),
+    createLocalWorkflow: (workspaceId: string, body: LocalWorkflowInput) =>
+      requestJson<LocalWorkflow>(baseUrl, `/workspace/${encodeURIComponent(workspaceId)}/local-workflows`, {
+        token, hostToken, method: "POST", body, timeoutMs: timeouts.config,
+      }),
+    updateLocalWorkflow: (workspaceId: string, workflowId: string, body: Partial<LocalWorkflowInput>) =>
+      requestJson<LocalWorkflow>(baseUrl, `/workspace/${encodeURIComponent(workspaceId)}/local-workflows/${encodeURIComponent(workflowId)}`, {
+        token, hostToken, method: "PATCH", body, timeoutMs: timeouts.config,
+      }),
+    deleteLocalWorkflow: (workspaceId: string, workflowId: string) =>
+      requestJson<{ ok: true }>(baseUrl, `/workspace/${encodeURIComponent(workspaceId)}/local-workflows/${encodeURIComponent(workflowId)}`, {
+        token, hostToken, method: "DELETE", timeoutMs: timeouts.config,
+      }),
+    runLocalWorkflow: (workspaceId: string, workflowId: string) =>
+      requestJson<LocalWorkflowRun>(baseUrl, `/workspace/${encodeURIComponent(workspaceId)}/local-workflows/${encodeURIComponent(workflowId)}/run`, {
+        token, hostToken, method: "POST", body: {}, timeoutMs: timeouts.config,
+      }),
+    cancelLocalWorkflowRun: (workspaceId: string, runId: string) =>
+      requestJson<LocalWorkflowRun>(baseUrl, `/workspace/${encodeURIComponent(workspaceId)}/local-workflows/runs/${encodeURIComponent(runId)}/cancel`, {
+        token, hostToken, method: "POST", body: {}, timeoutMs: timeouts.config,
+      }),
     upsertCommand: (
       workspaceId: string,
       payload: { name: string; description?: string; template: string; agent?: string; model?: string | null; subtask?: boolean },
