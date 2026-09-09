@@ -99,6 +99,8 @@ import { registerSessionGroupRoutes } from "./routes/session-groups.js";
 import { registerUiControlRoutes } from "./routes/ui-control.js";
 import { registerWorkspaceRoutes } from "./routes/workspaces.js";
 import { registerCloudMcpRoutes } from "./routes/cloud-mcp.js";
+import { registerLocalWorkflowRoutes } from "./routes/local-workflows.js";
+import type { LocalWorkflowService } from "./local-workflows.js";
 import { UiControlMailbox } from "./ui-control.js";
 import { captureServerException, isExpectedRequestCancellation } from "./telemetry.js";
 import {
@@ -163,6 +165,7 @@ export {
 
 const SERVER_VERSION = pkg.version;
 const OPENCODE_VERSION = constants.opencodeVersion.trim().replace(/^v/, "");
+const localWorkflowServices = new WeakMap<ServerConfig, LocalWorkflowService>();
 
 let desktopCloudSyncQueue: Promise<void> = Promise.resolve();
 const agentDiagnosticsLastRunByServer = new WeakMap<ServerConfig, Map<string, number>>();
@@ -1097,6 +1100,7 @@ export async function startServer(config: ServerConfig): Promise<ServeResult> {
     stop: async () => {
       let recoveryError: unknown;
       try { await taskRecovery?.stop(); } catch (error) { recoveryError = error; }
+      await localWorkflowServices.get(config)?.stop();
       managedDesktopPolicy(config).onChange = undefined;
       cloudProviderSync.stop();
       await engineV2Preview.stop().catch(() => undefined);
@@ -2348,6 +2352,19 @@ function createRoutes(
       ),
     serverMetadata: { serverVersion: SERVER_VERSION, expectedOpencodeVersion: OPENCODE_VERSION },
   });
+
+  const localWorkflowService = registerLocalWorkflowRoutes({
+    routes,
+    config,
+    jsonResponse,
+    readJsonBody,
+    ensureWritable,
+    requireClientScope,
+    resolveWorkspace,
+    resolveWorkspaceWithoutBootstrap,
+    createWorkspaceOpencodeClient,
+  });
+  localWorkflowServices.set(config, localWorkflowService);
 
   addRoute(routes, "POST", "/workspace/:id/diagnostics/agent-context", "client", async (ctx) => {
     requireClientScope(ctx, "collaborator");
