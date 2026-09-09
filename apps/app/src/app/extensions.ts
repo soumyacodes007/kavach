@@ -194,7 +194,7 @@ export const BUILT_IN_OPENWORK_EXTENSION_MANIFESTS: OpenWorkExtensionManifest[] 
     icon: { src: "/offlinegpt-mark.png" },
     composer: { prompt: "Use Computer Use to " },
     setup: {
-      instructions: "Enable Computer Use on macOS 14 or later and grant Accessibility and Screen Recording in the helper. For each session, choose an app window and allow reading, app controls, or mouse and keyboard. Choose Allow and start in OpenWork. Your input interrupts control; Stop in the preview ends access.",
+      instructions: "Computer Use is available on macOS 14 or later. Grant Accessibility and Screen Recording in the helper. For each session, choose an app window and allow reading, app controls, or mouse and keyboard. Choose Allow and start in OfflineGPT. Your input interrupts control; Stop in the preview ends access.",
       primaryCta: "Enable Computer Use",
       secondaryCta: "Check macOS permissions",
       testActionRef: "openwork.computerUse.healthCheck",
@@ -229,6 +229,7 @@ export const BUILT_IN_OPENWORK_EXTENSION_MANIFESTS: OpenWorkExtensionManifest[] 
       { type: "permission-granted", ref: "screenRecording", label: "Screen Recording permission" },
     ],
     lifecycle: { reload: ["mcp"], detection: ["mcp:computer-use"] },
+    defaultEnabled: true,
     platform: ["darwin"],
   },
   {
