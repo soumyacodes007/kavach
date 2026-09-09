@@ -8,6 +8,14 @@ const desktopRoot = resolve(__dirname, "..");
 const repoRoot = resolve(desktopRoot, "../..");
 const electronSidecarDir = resolve(desktopRoot, "resources", "sidecars");
 const electronHelperDir = resolve(desktopRoot, "resources", "helpers");
+
+// Browser automation is approval-free in local development unless explicitly
+// disabled. Set this here as well as in the workspace scripts so direct
+// `@openwork/desktop` launches behave the same as `pnpm dev` and
+// `pnpm dev:electron`.
+process.env.OPENWORK_DEV_MODE ??= "1";
+process.env.OPENWORK_BROWSER_AUTO_APPROVE ??= "1";
+
 const defaultDevDataDir = resolve(
   process.env.HOME ?? process.env.USERPROFILE ?? repoRoot,
   ".openwork",

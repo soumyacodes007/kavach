@@ -956,6 +956,48 @@ test("a first task open stays blank through asynchronous panel mounting and loca
   assert.equal((await reading).code, "user_denied");
 });
 
+test("local development auto-approval opens browser tasks without a permission card", async (t) => {
+  const previousDevMode = process.env.OPENWORK_DEV_MODE;
+  const previousAutoApprove = process.env.OPENWORK_BROWSER_AUTO_APPROVE;
+  t.after(() => {
+    if (previousDevMode === undefined) delete process.env.OPENWORK_DEV_MODE;
+    else process.env.OPENWORK_DEV_MODE = previousDevMode;
+    if (previousAutoApprove === undefined) delete process.env.OPENWORK_BROWSER_AUTO_APPROVE;
+    else process.env.OPENWORK_BROWSER_AUTO_APPROVE = previousAutoApprove;
+  });
+  process.env.OPENWORK_DEV_MODE = "1";
+  process.env.OPENWORK_BROWSER_AUTO_APPROVE = "1";
+
+  const { invoke, panel, views } = createPanel();
+  invoke("openwork:browser:show", PANEL_BOUNDS, "A");
+  const opening = panel.browserTask({ sessionId: "A", operation: "open", args: { url: "https://example.com/" } });
+  const result = await opening;
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(views()[0].webContents.destinations, ["https://example.com/"]);
+  assert.equal(invoke("openwork:browser:state").tabs[0].browserApproval, null);
+});
+
+test("local development auto-approval can finish the first open while the browser panel mounts", async (t) => {
+  const previousDevMode = process.env.OPENWORK_DEV_MODE;
+  const previousAutoApprove = process.env.OPENWORK_BROWSER_AUTO_APPROVE;
+  t.after(() => {
+    if (previousDevMode === undefined) delete process.env.OPENWORK_DEV_MODE;
+    else process.env.OPENWORK_DEV_MODE = previousDevMode;
+    if (previousAutoApprove === undefined) delete process.env.OPENWORK_BROWSER_AUTO_APPROVE;
+    else process.env.OPENWORK_BROWSER_AUTO_APPROVE = previousAutoApprove;
+  });
+  process.env.OPENWORK_DEV_MODE = "1";
+  process.env.OPENWORK_BROWSER_AUTO_APPROVE = "1";
+
+  const { invoke, panel, views } = createPanel();
+  const result = await panel.browserTask({ sessionId: "A", operation: "open", args: { url: "https://www.google.com/travel/flights" } });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(views()[0].webContents.destinations, ["https://www.google.com/travel/flights"]);
+  assert.equal(invoke("openwork:browser:state").tabs[0].browserApproval, null);
+});
+
 test("denied, canceled, closed and background task opens never load and release their blank tabs", async () => {
   for (const end of ["deny", "cancel", "close", "background"]) {
     const { invoke, panel, views, approve } = createPanel();

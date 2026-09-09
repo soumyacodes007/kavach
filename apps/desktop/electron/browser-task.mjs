@@ -7,6 +7,10 @@ const MAX_OPERATION_MS = 30_000;
 const OBSERVATION_MS = 15_000;
 const TRUST = "untrusted-site-content";
 
+function browserAutoApprovalEnabled() {
+  return process.env.OPENWORK_DEV_MODE === "1" && process.env.OPENWORK_BROWSER_AUTO_APPROVE === "1";
+}
+
 export class BrowserTaskError extends Error {
   constructor(code, message) { super(message); this.code = code; }
 }
@@ -135,6 +139,10 @@ export function createBrowserTaskHost({ getTab, tabsFor, ownerOf, activeFor, isV
     if (!await allowed(url.href)) fail("website_blocked", "Your organization does not allow this website.");
     checkNavigation(scope);
     const needsConsent = !scope.origins.has(url.origin);
+    // In local auto-approval mode, a first agent open can finish while the
+    // renderer mounts the browser side panel. Manual approval and subsequent
+    // navigations still require the user-visible tab.
+    const allowHiddenInitialOpen = waitForVisible && browserAutoApprovalEnabled();
     if (needsConsent) {
       if (!waitForVisible && !isVisible(scope.tab.tabId)) fail("needs_attention", "Select this tab to review navigation, then retry.");
       publish(scope.tab.tabId, "needs_attention", "Website navigation");
@@ -146,14 +154,14 @@ export function createBrowserTaskHost({ getTab, tabsFor, ownerOf, activeFor, isV
       if (!accepted) fail("user_denied", "Website navigation was not allowed.");
       if (!await allowed(url.href)) fail("website_blocked", "Your organization does not allow this website.");
       checkNavigation(scope);
-      if (!isVisible(scope.tab.tabId)) fail("needs_attention", "The tab is no longer visible. Review navigation again.");
+      if (!allowHiddenInitialOpen && !isVisible(scope.tab.tabId)) fail("needs_attention", "The tab is no longer visible. Review navigation again.");
       scope.origins.add(url.origin);
     }
     // The request hook rechecks the full managed policy (including uploads)
     // after consent. Give it a synchronous final ownership/cancellation check.
     return () => {
       checkNavigation(scope);
-      if (needsConsent && !isVisible(scope.tab.tabId)) {
+      if (needsConsent && !allowHiddenInitialOpen && !isVisible(scope.tab.tabId)) {
         scope.origins.delete(url.origin);
         fail("needs_attention", "The tab is no longer visible. Review navigation again.");
       }
