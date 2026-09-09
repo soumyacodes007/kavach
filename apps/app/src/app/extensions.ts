@@ -156,13 +156,13 @@ export const BUILT_IN_OPENWORK_EXTENSION_MANIFESTS: OpenWorkExtensionManifest[] 
   {
     schemaVersion: 1,
     id: "openwork-browser",
-    name: "OpenWork Browser",
-    description: "Automate the built-in browser panel that stays visible inside OpenWork.",
+    name: "OfflineGPT Browser",
+    description: "Automate the built-in browser panel that stays visible inside OfflineGPT.",
     source: { format: "openwork-builtin", origin: "builtin", trusted: true },
     icon: { src: "/offlinegpt-mark.png" },
-    composer: { prompt: "Use the OpenWork Browser extension to " },
+    composer: { prompt: "Use the OfflineGPT Browser extension to " },
     setup: {
-      instructions: "OpenWork Browser is ready by default in desktop workspaces.",
+      instructions: "OfflineGPT Browser is ready by default in desktop workspaces.",
     },
     resources: [
       {
@@ -175,7 +175,7 @@ export const BUILT_IN_OPENWORK_EXTENSION_MANIFESTS: OpenWorkExtensionManifest[] 
     contributions: [
       { type: "settings-panel", ref: "openwork.browser.settings", location: "settings-detail" },
       { type: "session-side-panel", ref: "openwork.browser.panel", location: "session-right-pane" },
-      { type: "composer-prompt", prompt: "Use the OpenWork Browser extension to ", location: "composer" },
+      { type: "composer-prompt", prompt: "Use the OfflineGPT Browser extension to ", location: "composer" },
     ],
     enablement: [
       { type: "toggle-enabled", ref: "openwork-browser", label: "Enabled" },
@@ -218,7 +218,7 @@ export const BUILT_IN_OPENWORK_EXTENSION_MANIFESTS: OpenWorkExtensionManifest[] 
       },
     ],
     contributions: [
-      { type: "setup-instructions", ref: "openwork.computerUse.setup", location: "settings-detail" },
+      { type: "setup-instructions", ref: "openwork.computerUse.setup", label: "Setup instructions", location: "settings-detail" },
       { type: "native-capability", ref: "openwork.computerUse.axPermissions", label: "Accessibility and Screen Recording" },
       { type: "test-action", ref: "openwork.computerUse.healthCheck", label: "Verify Computer Use MCP" },
       { type: "composer-prompt", prompt: "Use Computer Use to ", location: "composer" },

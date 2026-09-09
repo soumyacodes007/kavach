@@ -150,12 +150,14 @@ export const flattenSessionRows = (
 const EMPTY_SET: Set<string> = new Set();
 const EMPTY_ARRAY: string[] = [];
 
-export const workspaceLabel = (workspace: WorkspaceInfo) =>
-  workspace.displayName?.trim() ||
-  workspace.openworkWorkspaceName?.trim() ||
-  workspace.name?.trim() ||
-  workspace.path?.trim() ||
-  t("workspace_list.workspace_fallback");
+export const workspaceLabel = (workspace: WorkspaceInfo) => {
+  const label = workspace.displayName?.trim() ||
+    workspace.openworkWorkspaceName?.trim() ||
+    workspace.name?.trim() ||
+    workspace.path?.trim() ||
+    t("workspace_list.workspace_fallback");
+  return label === "OpenWork Chat" ? "OfflineGPT Chat" : label;
+};
 
 export const workspaceKindLabel = (workspace: WorkspaceInfo) =>
   workspace.workspaceType === "remote"

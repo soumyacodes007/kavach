@@ -295,10 +295,11 @@ function sessionTitleForId(groups: WorkspaceSessionGroup[], id: string | null | 
 
 function workspaceTitleForId(groups: WorkspaceSessionGroup[], workspaceId: string) {
   const workspace = groups.find((group) => group.workspace.id === workspaceId)?.workspace;
-  return workspace?.displayName?.trim()
+  const title = workspace?.displayName?.trim()
     || workspace?.name?.trim()
     || workspace?.path?.trim()
     || workspaceId;
+  return title === "OpenWork Chat" ? "OfflineGPT Chat" : title;
 }
 
 function WorkbenchPaneHeader(props: {
@@ -927,10 +928,11 @@ export function SessionPage(props: SessionPageProps) {
     () => sessionTitleForId(props.sidebar.workspaceSessionGroups, props.selectedSessionId, props.selectedWorkspaceId),
     [props.selectedSessionId, props.selectedWorkspaceId, props.sidebar.workspaceSessionGroups],
   );
-  const workspaceName =
+  const workspaceNameRaw =
     props.selectedWorkspaceDisplay.displayName?.trim() ||
     props.selectedWorkspaceDisplay.name?.trim() ||
     t("session.workspace_fallback");
+  const workspaceName = workspaceNameRaw === "OpenWork Chat" ? "OfflineGPT Chat" : workspaceNameRaw;
   useEffect(() => {
     if (pendingConversationHistoryNavigation) {
       if (
