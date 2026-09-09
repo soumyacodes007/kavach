@@ -13,7 +13,7 @@
       "type": "image/png"
     },
     {
-      "src": "/openwork-mark.svg",
+      "src": "/offlinegpt-mark.png",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

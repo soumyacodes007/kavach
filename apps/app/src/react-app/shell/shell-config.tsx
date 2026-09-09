@@ -37,12 +37,12 @@ export type ShellConfig = {
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_SHELL_CONFIG: ShellConfig = {
-  appName: "OpenWork",
+  appName: "OfflineGPT",
   statusBar: true,
   sidebar: true,
   docsButton: true,
   feedbackButton: true,
-  cloudSignin: true,
+  cloudSignin: false,
   welcomePage: true,
   starterCards: true,
   modelPicker: true,

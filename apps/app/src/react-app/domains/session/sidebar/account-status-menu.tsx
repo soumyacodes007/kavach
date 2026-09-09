@@ -512,7 +512,7 @@ export function AccountStatusMenu(props: AccountStatusMenuProps) {
             <LogOut className="size-3.5" />
             Log out
           </DropdownMenuItem>
-        ) : restoringSession ? null : (
+        ) : shellConfig.cloudSignin && !restoringSession ? (
           <div
             className="flex flex-col gap-2 px-2 py-2"
             onPointerDown={(event) => event.stopPropagation()}
@@ -583,7 +583,7 @@ export function AccountStatusMenu(props: AccountStatusMenuProps) {
               </div>
             ) : null}
           </div>
-        )}
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );

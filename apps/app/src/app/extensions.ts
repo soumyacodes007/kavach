@@ -159,7 +159,7 @@ export const BUILT_IN_OPENWORK_EXTENSION_MANIFESTS: OpenWorkExtensionManifest[] 
     name: "OpenWork Browser",
     description: "Automate the built-in browser panel that stays visible inside OpenWork.",
     source: { format: "openwork-builtin", origin: "builtin", trusted: true },
-    icon: { src: "/openwork-mark.svg" },
+    icon: { src: "/offlinegpt-mark.png" },
     composer: { prompt: "Use the OpenWork Browser extension to " },
     setup: {
       instructions: "OpenWork Browser is ready by default in desktop workspaces.",
@@ -191,7 +191,7 @@ export const BUILT_IN_OPENWORK_EXTENSION_MANIFESTS: OpenWorkExtensionManifest[] 
     description: "Work in the Mac app and window you approve. Read, use accessible controls, or allow mouse and keyboard control with a small window preview.",
     preview: true,
     source: { format: "openwork-builtin", origin: "builtin", trusted: true },
-    icon: { src: "/openwork-mark.svg" },
+    icon: { src: "/offlinegpt-mark.png" },
     composer: { prompt: "Use Computer Use to " },
     setup: {
       instructions: "Enable Computer Use on macOS 14 or later and grant Accessibility and Screen Recording in the helper. For each session, choose an app window and allow reading, app controls, or mouse and keyboard. Choose Allow and start in OpenWork. Your input interrupts control; Stop in the preview ends access.",

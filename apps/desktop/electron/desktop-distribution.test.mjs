@@ -12,6 +12,17 @@ import {
 } from "./desktop-distribution.mjs";
 
 describe("resolveDesktopDistribution", () => {
+  it("brands the local public desktop build as OfflineGPT", () => {
+    assert.deepEqual(PUBLIC_DESKTOP_DISTRIBUTION, {
+      flavor: "public",
+      appName: "OfflineGPT",
+      appIdentifier: "com.differentai.openwork",
+      protocolScheme: "openwork",
+      requireSignin: false,
+      requireActivation: false,
+    });
+  });
+
   it("defines a Cloud build that requires sign-in without enterprise activation", () => {
     assert.deepEqual(
       resolveDesktopDistribution({

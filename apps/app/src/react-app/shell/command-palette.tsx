@@ -50,6 +50,7 @@ import {
   type PaletteResultGroup,
 } from "./command-palette-search";
 import { buildCommandPaletteSettingsItems } from "./command-palette-settings";
+import { useShellConfig } from "./shell-config";
 
 export type { PaletteItem } from "./command-palette-search";
 
@@ -144,6 +145,7 @@ export type CommandPaletteProps = {
  */
 export function CommandPalette(props: CommandPaletteProps) {
   const platform = usePlatform();
+  const { config: shellConfig } = useShellConfig();
   const [mode, setMode] = useState<CommandPaletteMode>("root");
   const [query, setQuery] = useState("");
   const [recents, setRecents] = useState(loadPaletteRecents);
@@ -453,7 +455,7 @@ export function CommandPalette(props: CommandPaletteProps) {
           },
         }]
       : []),
-    {
+    ...(shellConfig.cloudSignin ? [{
       id: "cloud.sign_in",
       title: "Sign in to OpenWork Cloud",
       keywords: ["login", "account", "organization", "org", "den", "cloud"],
@@ -462,8 +464,8 @@ export function CommandPalette(props: CommandPaletteProps) {
         props.onClose();
         props.onOpenSettings("/settings/cloud-account");
       },
-    },
-  ], [props]);
+    }] : []),
+  ], [props, shellConfig.cloudSignin]);
 
   const allRootItems = useMemo(
     () => [
